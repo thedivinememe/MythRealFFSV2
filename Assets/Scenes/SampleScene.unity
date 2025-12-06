@@ -38,12 +38,12 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -248,14 +248,14 @@ MonoBehaviour:
   m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
   m_RequiresDepthTexture: 0
   m_RequiresColorTexture: 0
-  m_Version: 2
   m_TaaSettings:
-    quality: 3
-    frameInfluence: 0.1
-    jitterScale: 1
-    mipBias: 0
-    varianceClampScale: 0.9
-    contrastAdaptiveSharpening: 0
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
+  m_Version: 2
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -282,14 +282,14 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 410087039}
   m_Enabled: 1
-  serializedVersion: 11
+  serializedVersion: 12
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 2
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
-  m_CookieSize: 10
+  m_CookieSize2D: {x: 10, y: 10}
   m_Shadows:
     m_Type: 2
     m_Resolution: -1
@@ -336,6 +336,9 @@ Light:
   m_ForceVisible: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+  m_LightUnit: 1
+  m_LuxAtDistance: 1
+  m_EnableSpotReflector: 1
 --- !u!4 &410087041
 Transform:
   m_ObjectHideFlags: 0
@@ -363,17 +366,106 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Version: 3
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
-  m_LightLayerMask: 1
-  m_RenderingLayers: 1
   m_CustomShadowLayers: 0
-  m_ShadowLayerMask: 1
-  m_ShadowRenderingLayers: 1
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 1
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
+--- !u!1 &661834921
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 661834923}
+  - component: {fileID: 661834922}
+  - component: {fileID: 661834924}
+  m_Layer: 0
+  m_Name: Season Simulation Example
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &661834922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 661834921}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1ad98dc44843549606d5d6e73b0d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MythRealFFSV2.Examples.SeasonSimulationExample
+  ancestries:
+  - {fileID: 11400000, guid: 9cf0228bbc9b44a15b67c8fd9f90560c, type: 2}
+  - {fileID: 11400000, guid: 2b327101782a540a2b361407bcf2d8dc, type: 2}
+  - {fileID: 11400000, guid: dda53dc8fc12645428445c54d94c9a0f, type: 2}
+  - {fileID: 11400000, guid: 8eb9106f9e7614449a34c662a114df08, type: 2}
+  backgrounds:
+  - {fileID: 11400000, guid: a036b9e300be84fe4be96d7e97a1a736, type: 2}
+  - {fileID: 11400000, guid: 97c1e210e38b14c65a533020f3b43856, type: 2}
+  - {fileID: 11400000, guid: 739ed6391275e46ddbefe0c3eab59b75, type: 2}
+  - {fileID: 11400000, guid: 9cbc29db41f7b412cb573da1665db945, type: 2}
+  - {fileID: 11400000, guid: 5d7eed5f1b46c4dfd92acb590b355a17, type: 2}
+  - {fileID: 11400000, guid: e73cca64857d64c14b108322c45a0146, type: 2}
+  abilities:
+  - {fileID: 11400000, guid: 35ec8db6c0c814a7080abbecde4307c8, type: 2}
+  - {fileID: 11400000, guid: 371584e1ad5214062b17fa644f9e1a55, type: 2}
+  - {fileID: 11400000, guid: 336075780f76b434dbcc0898dc415b3c, type: 2}
+  - {fileID: 11400000, guid: 7da426edfa99c4c7f8dd686070897ab9, type: 2}
+  - {fileID: 11400000, guid: 35c7eda8589b640e39fa669192e4426c, type: 2}
+  - {fileID: 11400000, guid: befc3239f6e574338848e595a41e5080, type: 2}
+  - {fileID: 11400000, guid: 99d48f6ee157d4dae82365c551a7528d, type: 2}
+  - {fileID: 11400000, guid: 02c474d93cf0145ef9070d7ce4327e1e, type: 2}
+  - {fileID: 11400000, guid: ca1ab6574932a4cbc8267cf7444d060a, type: 2}
+  numberOfTeams: 4
+  charactersPerTeam: 5
+  useDoubleRoundRobin: 0
+--- !u!4 &661834923
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 661834921}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0, y: -0, z: -0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &661834924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 661834921}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a77bf5d551354368b3a206d25ff2b11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MythRealFFSV2.Examples.SaveLoadExample
+  currentSaveName: MyLeague
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -423,6 +515,211 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1199248604
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1199248606}
+  - component: {fileID: 1199248605}
+  m_Layer: 0
+  m_Name: Draft Example
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1199248605
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1199248604}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53693227227744ae09d7e71c8603ec13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MythRealFFSV2.Examples.DraftExample
+  ancestries:
+  - {fileID: 11400000, guid: 9cf0228bbc9b44a15b67c8fd9f90560c, type: 2}
+  - {fileID: 11400000, guid: 2b327101782a540a2b361407bcf2d8dc, type: 2}
+  - {fileID: 11400000, guid: dda53dc8fc12645428445c54d94c9a0f, type: 2}
+  - {fileID: 11400000, guid: 8eb9106f9e7614449a34c662a114df08, type: 2}
+  backgrounds:
+  - {fileID: 11400000, guid: a036b9e300be84fe4be96d7e97a1a736, type: 2}
+  - {fileID: 11400000, guid: 97c1e210e38b14c65a533020f3b43856, type: 2}
+  - {fileID: 11400000, guid: 739ed6391275e46ddbefe0c3eab59b75, type: 2}
+  - {fileID: 11400000, guid: 9cbc29db41f7b412cb573da1665db945, type: 2}
+  - {fileID: 11400000, guid: 5d7eed5f1b46c4dfd92acb590b355a17, type: 2}
+  - {fileID: 11400000, guid: e73cca64857d64c14b108322c45a0146, type: 2}
+  abilities:
+  - {fileID: 11400000, guid: 35ec8db6c0c814a7080abbecde4307c8, type: 2}
+  - {fileID: 11400000, guid: 371584e1ad5214062b17fa644f9e1a55, type: 2}
+  - {fileID: 11400000, guid: 336075780f76b434dbcc0898dc415b3c, type: 2}
+  - {fileID: 11400000, guid: 7da426edfa99c4c7f8dd686070897ab9, type: 2}
+  - {fileID: 11400000, guid: 35c7eda8589b640e39fa669192e4426c, type: 2}
+  - {fileID: 11400000, guid: befc3239f6e574338848e595a41e5080, type: 2}
+  - {fileID: 11400000, guid: 99d48f6ee157d4dae82365c551a7528d, type: 2}
+  - {fileID: 11400000, guid: 02c474d93cf0145ef9070d7ce4327e1e, type: 2}
+  - {fileID: 11400000, guid: ca1ab6574932a4cbc8267cf7444d060a, type: 2}
+  numberOfTeams: 4
+  draftRounds: 5
+  characterPoolSize: 30
+--- !u!4 &1199248606
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1199248604}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0, y: -0, z: -0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1329270088
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1329270090}
+  - component: {fileID: 1329270089}
+  m_Layer: 0
+  m_Name: BattleTest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1329270089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1329270088}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ac859899ecda45f29da0b4d0122e975, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MythRealFFSV2.Examples.BattleSimulationExample
+  ancestries:
+  - {fileID: 11400000, guid: dda53dc8fc12645428445c54d94c9a0f, type: 2}
+  - {fileID: 11400000, guid: 9cf0228bbc9b44a15b67c8fd9f90560c, type: 2}
+  - {fileID: 11400000, guid: 2b327101782a540a2b361407bcf2d8dc, type: 2}
+  - {fileID: 11400000, guid: 8eb9106f9e7614449a34c662a114df08, type: 2}
+  backgrounds:
+  - {fileID: 11400000, guid: e73cca64857d64c14b108322c45a0146, type: 2}
+  - {fileID: 11400000, guid: a036b9e300be84fe4be96d7e97a1a736, type: 2}
+  - {fileID: 11400000, guid: 97c1e210e38b14c65a533020f3b43856, type: 2}
+  - {fileID: 11400000, guid: 739ed6391275e46ddbefe0c3eab59b75, type: 2}
+  - {fileID: 11400000, guid: 9cbc29db41f7b412cb573da1665db945, type: 2}
+  - {fileID: 11400000, guid: 5d7eed5f1b46c4dfd92acb590b355a17, type: 2}
+  abilities:
+  - {fileID: 11400000, guid: 35ec8db6c0c814a7080abbecde4307c8, type: 2}
+  - {fileID: 11400000, guid: 371584e1ad5214062b17fa644f9e1a55, type: 2}
+  - {fileID: 11400000, guid: 336075780f76b434dbcc0898dc415b3c, type: 2}
+  - {fileID: 11400000, guid: 7da426edfa99c4c7f8dd686070897ab9, type: 2}
+  - {fileID: 11400000, guid: 35c7eda8589b640e39fa669192e4426c, type: 2}
+  - {fileID: 11400000, guid: befc3239f6e574338848e595a41e5080, type: 2}
+  - {fileID: 11400000, guid: 99d48f6ee157d4dae82365c551a7528d, type: 2}
+  - {fileID: 11400000, guid: 02c474d93cf0145ef9070d7ce4327e1e, type: 2}
+  talents:
+  - {fileID: 11400000, guid: a4b2fe8765c59420680003e5191c7d2a, type: 2}
+  - {fileID: 11400000, guid: 9afe13e2189dd431c9c920f71604fdcb, type: 2}
+  - {fileID: 11400000, guid: ab60903da2d3a4da18577060815367e9, type: 2}
+  - {fileID: 11400000, guid: 76c84129487f94365ac31865ee224e7e, type: 2}
+  - {fileID: 11400000, guid: 7c6454aea432345bd86b567d8c3b0224, type: 2}
+  teamSize: 3
+  instantSimulation: 1
+  team1Personality: 2
+  team2Personality: 0
+  lastBattleResult:
+    outcome: 0
+    winningTeam: 0
+    statistics:
+      totalTurns: 0
+      battleDuration: 0
+      team1TotalDamage: 0
+      team2TotalDamage: 0
+      team1TotalHealing: 0
+      team2TotalHealing: 0
+      team1AbilitiesUsed: 0
+      team2AbilitiesUsed: 0
+      team1BasicAttacks: 0
+      team2BasicAttacks: 0
+    team1FinalState: []
+    team2FinalState: []
+--- !u!4 &1329270090
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1329270088}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0, y: 0, z: -0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1914706913
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1914706915}
+  - component: {fileID: 1914706914}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1914706914
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1914706913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a77bf5d551354368b3a206d25ff2b11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MythRealFFSV2.Examples.SaveLoadExample
+  currentSaveName: MyLeague
+--- !u!4 &1914706915
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1914706913}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0, y: -0, z: -0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -430,3 +727,7 @@ SceneRoots:
   - {fileID: 330585546}
   - {fileID: 410087041}
   - {fileID: 832575519}
+  - {fileID: 1329270090}
+  - {fileID: 661834923}
+  - {fileID: 1199248606}
+  - {fileID: 1914706915}

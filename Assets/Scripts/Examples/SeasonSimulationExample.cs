@@ -104,6 +104,18 @@ namespace MythRealFFSV2.Examples
             leagueManager.PlayEntireSeason();
         }
 
+        [ContextMenu("Play Next Playoff Round")]
+        void PlayNextPlayoffRound()
+        {
+            leagueManager.PlayNextPlayoffRound();
+        }
+
+        [ContextMenu("Play All Playoff Rounds")]
+        void PlayAllPlayoffRounds()
+        {
+            leagueManager.PlayAllPlayoffRounds();
+        }
+
         [ContextMenu("Show Current Standings")]
         void ShowStandings()
         {

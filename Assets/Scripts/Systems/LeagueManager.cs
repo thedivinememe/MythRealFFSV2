@@ -29,6 +29,10 @@ namespace MythRealFFSV2.Systems
         public int currentSeasonYear = 2025;
         public bool doubleRoundRobin = false;
 
+        [Header("Playoff Settings")]
+        public bool enablePlayoffs = true;
+        public int playoffTeamCount = 4; // Must be 2, 4, or 8
+
         [Header("Simulation Settings")]
         public bool autoPlayMatches = true;
         public float matchDelay = 1f; // Delay between matches in a week
@@ -37,13 +41,22 @@ namespace MythRealFFSV2.Systems
         public Schedule currentSchedule;
         public bool seasonInProgress;
 
+        [Header("Current Playoffs")]
+        public PlayoffBracket currentPlayoffBracket;
+        public bool playoffsInProgress;
+
         [Header("Events")]
         public MatchCompleteEvent onMatchComplete = new MatchCompleteEvent();
         public SeasonCompleteEvent onSeasonComplete = new SeasonCompleteEvent();
 
+        [Header("Auto-Save")]
+        public bool enableAutoSave = true;
+        public string autoSaveName = "AutoSave";
+
         [Header("Components")]
         private TeamManager teamManager;
         private BattleSimulator battleSimulator;
+        private SaveLoadManager saveLoadManager;
 
         void Awake()
         {
@@ -55,8 +68,25 @@ namespace MythRealFFSV2.Systems
             if (battleSimulator == null)
                 battleSimulator = gameObject.AddComponent<BattleSimulator>();
 
+            saveLoadManager = GetComponent<SaveLoadManager>();
+            if (saveLoadManager == null)
+                saveLoadManager = gameObject.AddComponent<SaveLoadManager>();
+
             // Configure battle simulator for quick matches
             battleSimulator.instantSimulation = true;
+        }
+
+        /// <summary>
+        /// Auto-save the current game state
+        /// </summary>
+        void AutoSave()
+        {
+            if (!enableAutoSave || saveLoadManager == null)
+                return;
+
+            var saveData = saveLoadManager.CreateSaveData(autoSaveName, teamManager, this);
+            saveLoadManager.SaveGame(saveData, autoSaveName);
+            Debug.Log("Auto-saved game");
         }
 
         /// <summary>
@@ -164,6 +194,9 @@ namespace MythRealFFSV2.Systems
             Debug.Log("\n=== STANDINGS ===");
             teamManager.PrintStandings();
 
+            // Auto-save after each week
+            AutoSave();
+
             // Check if season is complete
             if (!currentSchedule.HasMoreMatches())
             {
@@ -239,13 +272,13 @@ namespace MythRealFFSV2.Systems
         }
 
         /// <summary>
-        /// End the current season
+        /// End the current season (regular season)
         /// </summary>
         void EndSeason()
         {
             seasonInProgress = false;
 
-            Debug.Log($"\n=== SEASON {currentSeasonYear} COMPLETE ===");
+            Debug.Log($"\n=== REGULAR SEASON {currentSeasonYear} COMPLETE ===");
 
             // Get final standings
             var finalStandings = teamManager.GetStandings();
@@ -254,24 +287,216 @@ namespace MythRealFFSV2.Systems
             for (int i = 0; i < finalStandings.Count; i++)
             {
                 var team = finalStandings[i];
-                string trophy = i == 0 ? " 🏆" : "";
-                Debug.Log($"{i + 1}. {team.teamName}{trophy}: {team.wins}-{team.losses}-{team.draws} " +
+                string playoffIndicator = (enablePlayoffs && i < playoffTeamCount) ? " 🎯" : "";
+                Debug.Log($"{i + 1}. {team.teamName}{playoffIndicator}: {team.wins}-{team.losses}-{team.draws} " +
                          $"({team.WinPercentage:P1}) | +/- {team.PointDifferential:+#;-#;0}");
             }
 
-            // Award championship
-            if (finalStandings.Count > 0)
+            // Start playoffs or end the season
+            if (enablePlayoffs && finalStandings.Count >= playoffTeamCount)
             {
-                finalStandings[0].championships++;
-                Debug.Log($"\n🏆 {finalStandings[0].teamName} are the champions! 🏆");
+                StartPlayoffs(finalStandings);
+            }
+            else
+            {
+                // No playoffs - award championship to regular season winner
+                if (finalStandings.Count > 0)
+                {
+                    finalStandings[0].championships++;
+                    Debug.Log($"\n🏆 {finalStandings[0].teamName} are the Regular Season Champions! 🏆");
+                }
+
+                // Fire season complete event
+                onSeasonComplete?.Invoke(currentSchedule, finalStandings);
+
+                // Increment season year
+                currentSeasonYear++;
+            }
+        }
+
+        #region Playoff Methods
+        /// <summary>
+        /// Start the playoff bracket
+        /// </summary>
+        void StartPlayoffs(List<TeamData> finalStandings)
+        {
+            // Get top teams for playoffs
+            var playoffTeams = finalStandings.Take(playoffTeamCount).ToList();
+
+            Debug.Log($"\n=== {leagueName} PLAYOFFS ===");
+            Debug.Log($"Top {playoffTeamCount} teams advance:");
+            for (int i = 0; i < playoffTeams.Count; i++)
+            {
+                Debug.Log($"  #{i + 1} {playoffTeams[i].teamName}");
             }
 
-            // Fire season complete event
+            // Generate playoff bracket
+            currentPlayoffBracket = PlayoffGenerator.GeneratePlayoffBracket(playoffTeams, currentSeasonYear);
+            playoffsInProgress = true;
+
+            Debug.Log($"\nPlayoff bracket generated: {currentPlayoffBracket.GetTotalRounds()} rounds");
+        }
+
+        /// <summary>
+        /// Play the next round of playoffs
+        /// </summary>
+        public void PlayNextPlayoffRound()
+        {
+            if (!playoffsInProgress)
+            {
+                Debug.LogWarning("No playoffs in progress!");
+                return;
+            }
+
+            if (!currentPlayoffBracket.HasMoreRounds())
+            {
+                Debug.LogWarning("Playoffs are complete!");
+                EndPlayoffs();
+                return;
+            }
+
+            StartCoroutine(PlayPlayoffRoundMatches());
+        }
+
+        /// <summary>
+        /// Play all remaining playoff rounds
+        /// </summary>
+        public void PlayAllPlayoffRounds()
+        {
+            if (!playoffsInProgress)
+            {
+                Debug.LogWarning("No playoffs in progress!");
+                return;
+            }
+
+            StartCoroutine(PlayAllPlayoffRoundsCoroutine());
+        }
+
+        /// <summary>
+        /// Coroutine to play all playoff matches in a round
+        /// </summary>
+        IEnumerator PlayPlayoffRoundMatches()
+        {
+            var roundMatches = currentPlayoffBracket.GetNextMatches();
+
+            string roundName = roundMatches.Count > 0 ? roundMatches[0].roundName : "Unknown";
+            Debug.Log($"\n=== {roundName.ToUpper()} ===");
+
+            foreach (var match in roundMatches)
+            {
+                if (match.team1 == null || match.team2 == null)
+                {
+                    Debug.LogWarning($"Skipping playoff match with null team");
+                    continue;
+                }
+
+                yield return PlayPlayoffMatch(match);
+
+                if (matchDelay > 0)
+                {
+                    yield return new WaitForSeconds(matchDelay);
+                }
+            }
+
+            // Heal all rosters after the round
+            teamManager.HealAllRosters();
+
+            // Update bracket for next round
+            PlayoffGenerator.UpdateBracketForNextRound(currentPlayoffBracket, currentPlayoffBracket.currentRound);
+
+            // Advance to next round
+            currentPlayoffBracket.AdvanceRound();
+
+            // Check if playoffs are complete
+            if (!currentPlayoffBracket.HasMoreRounds())
+            {
+                EndPlayoffs();
+            }
+        }
+
+        /// <summary>
+        /// Coroutine to play all playoff rounds
+        /// </summary>
+        IEnumerator PlayAllPlayoffRoundsCoroutine()
+        {
+            while (currentPlayoffBracket.HasMoreRounds())
+            {
+                yield return PlayPlayoffRoundMatches();
+            }
+        }
+
+        /// <summary>
+        /// Play a single playoff match
+        /// </summary>
+        IEnumerator PlayPlayoffMatch(PlayoffMatch match)
+        {
+            Debug.Log($"\n{match}");
+
+            // Get active rosters
+            var team1Roster = match.team1.GetActiveRoster();
+            var team2Roster = match.team2.GetActiveRoster();
+
+            if (team1Roster.Count == 0 || team2Roster.Count == 0)
+            {
+                Debug.LogError($"Cannot play playoff match - one or both teams have no active characters!");
+                yield break;
+            }
+
+            // Simulate battle
+            bool battleComplete = false;
+            BattleResult result = null;
+
+            battleSimulator.onBattleComplete.AddListener((BattleResult r) =>
+            {
+                result = r;
+                battleComplete = true;
+            });
+
+            battleSimulator.SimulateBattle(team1Roster, team2Roster);
+
+            // Wait for battle to complete
+            while (!battleComplete)
+            {
+                yield return null;
+            }
+
+            // Calculate scores based on damage dealt
+            int team1Score = result.statistics.team1TotalDamage;
+            int team2Score = result.statistics.team2TotalDamage;
+
+            // Record result
+            match.RecordResult(result, team1Score, team2Score);
+
+            Debug.Log($"FINAL: {match.team1.teamName} {team1Score} - {team2Score} {match.team2.teamName}");
+            Debug.Log($"🏆 {match.winner.teamName} advances! {match.loser.teamName} eliminated.");
+        }
+
+        /// <summary>
+        /// End the playoffs and award championship
+        /// </summary>
+        void EndPlayoffs()
+        {
+            playoffsInProgress = false;
+
+            Debug.Log($"\n=== PLAYOFFS COMPLETE ===");
+
+            if (currentPlayoffBracket.champion != null)
+            {
+                currentPlayoffBracket.champion.championships++;
+                Debug.Log($"\n🏆🏆🏆 {currentPlayoffBracket.champion.teamName} ARE THE CHAMPIONS! 🏆🏆🏆");
+            }
+
+            // Fire season complete event with playoff champion
+            var finalStandings = teamManager.GetStandings();
             onSeasonComplete?.Invoke(currentSchedule, finalStandings);
+
+            // Auto-save after playoffs complete
+            AutoSave();
 
             // Increment season year
             currentSeasonYear++;
         }
+        #endregion
 
         /// <summary>
         /// Get current standings
