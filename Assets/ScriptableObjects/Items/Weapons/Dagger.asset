@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: Dagger
+  m_EditorClassIdentifier: Assembly-CSharp:MythRealFFSV2.Data:WeaponData
+  itemName: Dagger
+  itemId: 1
+  description: A small, light blade perfect for quick strikes
+  icon: {fileID: 0}
+  valueInNotes: 5
+  isTradeable: 1
+  weight: 1
+  maxStackSize: 1
+  isConsumable: 0
+  isQuestItem: 0
+  actionPointCost: 1
+  tags: []
+  specialProperties: []
+  weaponType: 1
+  damageRoll:
+    numberOfDice: 1
+    diceSize: 4
+    modifier: 0
+  damageType: 2
+  primaryAttribute: 0
+  minimumAttributeValue: 0
+  isTwoHanded: 0
+  isFinesse: 1
+  isThrown: 1
+  throwRange: 20
+  requiredProficiency: 17

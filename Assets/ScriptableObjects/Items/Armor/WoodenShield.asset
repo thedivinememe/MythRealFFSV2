@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: WoodenShield
+  m_EditorClassIdentifier: Assembly-CSharp:MythRealFFSV2.Data:ArmorData
+  itemName: Wooden Shield
+  itemId: 12
+  description: A basic shield for defense
+  icon: {fileID: 0}
+  valueInNotes: 5
+  isTradeable: 1
+  weight: 6
+  maxStackSize: 1
+  isConsumable: 0
+  isQuestItem: 0
+  actionPointCost: 1
+  tags: []
+  specialProperties: []
+  armorType: 4
+  equipmentSlot: 1
+  armorClass: 2
+  attributeModifiers: []
+  restrictsMovement: 0
+  speedPenalty: 0
+  minimumStrength: 0

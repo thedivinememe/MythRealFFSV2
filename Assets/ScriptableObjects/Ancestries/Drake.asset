@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 830dfb529e1694a85aba40957708ae06, type: 3}
+  m_Name: Drake
+  m_EditorClassIdentifier: Assembly-CSharp::MythRealFFSV2.Data.AncestryData
+  ancestryType: 3
+  ancestryName: Drake
+  description: The Drakes are humanoids descended from Dragons. They are a proud
+    race who value strength and order.
+  adulthoodAge: 10
+  maxAge: 150
+  minHeight: 6.5
+  maxHeight: 7.5
+  startingHP: 10
+  attributeIncreases:
+  - attributeType: 5
+    bonus: 1
+  - attributeType: 6
+    bonus: 1
+  attributeFlaws: 
+  knownLanguages: 000000000200000001000000
+  tags:
+  - Drake
+  - Humanoid
+  startingTalentSlots: 1
+  ancestryTalents: []

@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 830dfb529e1694a85aba40957708ae06, type: 3}
+  m_Name: Orc
+  m_EditorClassIdentifier: Assembly-CSharp::MythRealFFSV2.Data.AncestryData
+  ancestryType: 2
+  ancestryName: Orc
+  description: Orcs are a large, strong race who historically have engaged in war
+    for sport.
+  adulthoodAge: 13
+  maxAge: 50
+  minHeight: 6
+  maxHeight: 7.4
+  startingHP: 10
+  attributeIncreases:
+  - attributeType: 5
+    bonus: 1
+  - attributeType: 2
+    bonus: 1
+  attributeFlaws: 
+  knownLanguages: 000000000100000004000000
+  tags:
+  - Orc
+  - Humanoid
+  startingTalentSlots: 1
+  ancestryTalents: []

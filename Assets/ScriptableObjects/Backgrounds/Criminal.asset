@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05010b95a36b044358a13fa0403735a5, type: 3}
+  m_Name: Criminal
+  m_EditorClassIdentifier: Assembly-CSharp::MythRealFFSV2.Data.BackgroundData
+  backgroundId: 7
+  backgroundName: Criminal
+  description: Born in the shadows, you live by your own rules. Theft, deception,
+    and cunning are your tools in a world that refuses to play fair.
+  attributeIncreaseOption1: 0
+  attributeIncreaseOption2: 3
+  skillProficiency1: 2
+  skillProficiency2: 0
+  proficiencyTalent: {fileID: 0}
+  additionalLanguages: 0
+  startingEquipment: []
+  startingNotes: 50
+  typicalBackstory: You've lived on the wrong side of the law, using stealth and
+    cunning to survive.
+  suggestedFlaws:
+  - Compulsive liar
+  - Greedy
+  - Paranoid of authorities
+  suggestedIdeals:
+  - Freedom above all
+  - Survival of the fittest
+  - Look out for yourself
+  suggestedBonds:
+  - A criminal gang
+  - A fence
+  - Someone you betrayed
