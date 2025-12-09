@@ -101,7 +101,7 @@ namespace MythRealFFSV2.UI
         /// </summary>
         public static void ShowYesNo(string title, string message, UnityAction onYes, UnityAction onNo = null)
         {
-            var dialog = FindObjectOfType<ConfirmationDialog>();
+            var dialog = FindFirstObjectByType<ConfirmationDialog>();
             if (dialog != null)
             {
                 dialog.Show(title, message, onYes, onNo, "Yes", "No");
@@ -113,7 +113,7 @@ namespace MythRealFFSV2.UI
         /// </summary>
         public static void ShowOkCancel(string title, string message, UnityAction onOk, UnityAction onCancel = null)
         {
-            var dialog = FindObjectOfType<ConfirmationDialog>();
+            var dialog = FindFirstObjectByType<ConfirmationDialog>();
             if (dialog != null)
             {
                 dialog.Show(title, message, onOk, onCancel, "OK", "Cancel");
@@ -125,7 +125,7 @@ namespace MythRealFFSV2.UI
         /// </summary>
         public static void ShowInfo(string title, string message, UnityAction onOk = null)
         {
-            var dialog = FindObjectOfType<ConfirmationDialog>();
+            var dialog = FindFirstObjectByType<ConfirmationDialog>();
             if (dialog != null)
             {
                 dialog.Show(title, message, onOk ?? (() => { }), null, "OK", "");

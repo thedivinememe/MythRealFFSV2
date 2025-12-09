@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05010b95a36b044358a13fa0403735a5, type: 3}
+  m_Name: Sailor
+  m_EditorClassIdentifier: Assembly-CSharp::MythRealFFSV2.Data.BackgroundData
+  backgroundId: 19
+  backgroundName: Sailor
+  description: You sailed the seas, working aboard ships and facing the dangers of
+    the ocean.
+  attributeIncreaseOption1: 5
+  attributeIncreaseOption2: 0
+  skillProficiency1: 1
+  skillProficiency2: 14
+  proficiencyTalent: {fileID: 0}
+  additionalLanguages: 0
+  startingEquipment: []
+  startingNotes: 35
+  typicalBackstory: You sailed the seas, working aboard ships and facing the dangers
+    of the ocean.
+  suggestedFlaws: []
+  suggestedIdeals: []
+  suggestedBonds: []

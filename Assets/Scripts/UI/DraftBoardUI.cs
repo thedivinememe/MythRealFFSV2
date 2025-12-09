@@ -39,8 +39,8 @@ namespace MythRealFFSV2.UI
         void Start()
         {
             // Get managers
-            draftManager = FindObjectOfType<DraftManager>();
-            teamManager = FindObjectOfType<TeamManager>();
+            draftManager = FindFirstObjectByType<DraftManager>();
+            teamManager = FindFirstObjectByType<TeamManager>();
 
             // Setup buttons
             if (backButton != null)
@@ -88,13 +88,13 @@ namespace MythRealFFSV2.UI
             {
                 if (draftManager.draftInProgress)
                 {
-                    int currentPick = draftManager.currentDraft.currentPickNumber;
+                    int currentPick = draftManager.currentDraft.currentPickIndex + 1; // +1 for display (1-indexed)
                     int totalPicks = draftManager.currentDraft.allPicks.Count;
                     var currentPickObj = draftManager.currentDraft.GetCurrentPick();
 
                     if (currentPickObj != null)
                     {
-                        draftStatusText.text = $"Pick {currentPick}/{totalPicks} - {currentPickObj.team.teamName} is drafting...";
+                        draftStatusText.text = $"Pick {currentPick}/{totalPicks} - {currentPickObj.draftingTeam.teamName} is drafting...";
                     }
                     else
                     {
@@ -169,7 +169,7 @@ namespace MythRealFFSV2.UI
 
             // Filter by team if selected
             var picksToShow = filterTeam != null
-                ? allPicks.Where(p => p.team == filterTeam && p.selectedCharacter != null).ToList()
+                ? allPicks.Where(p => p.draftingTeam == filterTeam && p.selectedCharacter != null).ToList()
                 : allPicks.Where(p => p.selectedCharacter != null).ToList();
 
             // Create rows for picks
@@ -219,7 +219,7 @@ namespace MythRealFFSV2.UI
                 roundText.text = $"R{pick.round}";
 
             if (teamText != null)
-                teamText.text = pick.team.teamName;
+                teamText.text = pick.draftingTeam.teamName;
 
             if (characterText != null)
             {
@@ -291,8 +291,8 @@ namespace MythRealFFSV2.UI
 
             if (ratingText != null)
             {
-                int rating = draftManager.CalculateCharacterRating(character);
-                ratingText.text = $"Rating: {rating}";
+                float rating = Draft.CalculateCharacterRating(character);
+                ratingText.text = $"Rating: {rating:F0}";
             }
 
             // Could add click handler for manual drafting in the future

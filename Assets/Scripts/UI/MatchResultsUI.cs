@@ -37,7 +37,7 @@ namespace MythRealFFSV2.UI
         void Start()
         {
             // Get managers
-            leagueManager = FindObjectOfType<LeagueManager>();
+            leagueManager = FindFirstObjectByType<LeagueManager>();
 
             // Setup buttons
             if (backButton != null)
@@ -210,15 +210,23 @@ namespace MythRealFFSV2.UI
             if (detailStatsText != null && match.battleResult != null)
             {
                 var stats = match.battleResult.statistics;
+                var result = match.battleResult;
+
+                // Calculate KO'd characters and final HP
+                int team1CharactersKOd = result.team1FinalState.Count(c => c.currentHP <= 0);
+                int team2CharactersKOd = result.team2FinalState.Count(c => c.currentHP <= 0);
+                int team1FinalHP = result.team1FinalState.Sum(c => c.currentHP);
+                int team2FinalHP = result.team2FinalState.Sum(c => c.currentHP);
+
                 string statsText = "Battle Statistics:\n\n";
                 statsText += $"{match.homeTeam.teamName}:\n";
                 statsText += $"  Total Damage: {stats.team1TotalDamage}\n";
-                statsText += $"  Characters KO'd: {stats.team2CharactersKOd}\n";
-                statsText += $"  Final HP: {stats.team1FinalHP}\n\n";
+                statsText += $"  Enemies KO'd: {team2CharactersKOd}\n";
+                statsText += $"  Final HP: {team1FinalHP}\n\n";
                 statsText += $"{match.awayTeam.teamName}:\n";
                 statsText += $"  Total Damage: {stats.team2TotalDamage}\n";
-                statsText += $"  Characters KO'd: {stats.team1CharactersKOd}\n";
-                statsText += $"  Final HP: {stats.team2FinalHP}\n\n";
+                statsText += $"  Enemies KO'd: {team1CharactersKOd}\n";
+                statsText += $"  Final HP: {team2FinalHP}\n\n";
                 statsText += $"Total Turns: {stats.totalTurns}\n";
                 statsText += $"Battle Duration: {stats.battleDuration:F2}s";
 

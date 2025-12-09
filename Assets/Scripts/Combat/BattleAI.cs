@@ -37,6 +37,13 @@ namespace MythRealFFSV2.Combat
             if (character.currentAP <= 0)
                 return false;
 
+            // Check if we need to move into range
+            if (combat.battlefield != null && ShouldMove(character, enemies, combat, out HexCoordinate targetPos))
+            {
+                if (combat.MoveCharacter(character, targetPos))
+                    return true;
+            }
+
             // Check if we should be defensive
             bool isLowHealth = (float)character.currentHP / character.maxHP < defensiveThreshold;
 
@@ -46,17 +53,40 @@ namespace MythRealFFSV2.Combat
                 return UseDefensiveAbility(character, combat);
             }
 
-            // Try to use an offensive ability
-            if (Random.value < abilityUsageRate && ShouldUseOffensiveAbility(character, enemies))
+            // Filter enemies by range for offensive abilities
+            List<CharacterData> enemiesInRange = combat.battlefield != null
+                ? GetEnemiesInRange(character, enemies, combat)
+                : enemies;
+
+            // Try to use an offensive ability on enemies in range
+            if (enemiesInRange.Count > 0 && Random.value < abilityUsageRate && ShouldUseOffensiveAbility(character, enemiesInRange))
             {
-                return UseOffensiveAbility(character, enemies, combat);
+                return UseOffensiveAbility(character, enemiesInRange, combat);
             }
 
-            // Fall back to basic attack
-            CharacterData target = SelectTarget(character, enemies);
-            if (target != null && character.currentAP >= 2)
+            // Fall back to basic attack on enemies in melee range
+            List<CharacterData> enemiesInMelee = combat.battlefield != null
+                ? GetEnemiesInMeleeRange(character, enemies, combat)
+                : enemies;
+
+            // If no enemies in melee range, try to move closer
+            if (enemiesInMelee.Count == 0 && combat.battlefield != null && character.currentAP >= 1)
             {
-                return combat.PerformBasicAttack(character, target);
+                if (ShouldMove(character, enemies, combat, out HexCoordinate movePos))
+                {
+                    if (combat.MoveCharacter(character, movePos))
+                        return true;
+                }
+            }
+
+            // Try basic attack if we have targets in melee
+            if (enemiesInMelee.Count > 0)
+            {
+                CharacterData target = SelectTarget(character, enemiesInMelee);
+                if (target != null && character.currentAP >= 2)
+                {
+                    return combat.PerformBasicAttack(character, target);
+                }
             }
 
             return false;
@@ -394,6 +424,199 @@ namespace MythRealFFSV2.Combat
 
             return false;
         }
+        #endregion
+
+        #region Spatial Awareness
+
+        /// <summary>
+        /// Determine if character should move and where
+        /// </summary>
+        bool ShouldMove(CharacterData character, List<CharacterData> enemies, CombatManager combat, out HexCoordinate targetPosition)
+        {
+            targetPosition = HexCoordinate.Invalid;
+
+            if (character.currentAP < 1)
+                return false;
+
+            HexBattlefield battlefield = combat.battlefield;
+            CombatantData self = combat.combatants.FirstOrDefault(c => c.character == character);
+
+            if (self == null || battlefield == null)
+                return false;
+
+            // Find closest enemy
+            CharacterData closestEnemy = null;
+            int closestDistance = int.MaxValue;
+
+            foreach (var enemy in enemies.Where(e => e.IsAlive()))
+            {
+                CombatantData enemyCombatant = combat.combatants.FirstOrDefault(c => c.character == enemy);
+                if (enemyCombatant != null)
+                {
+                    int dist = battlefield.GetDistance(self.position, enemyCombatant.position);
+                    if (dist < closestDistance)
+                    {
+                        closestDistance = dist;
+                        closestEnemy = enemy;
+                    }
+                }
+            }
+
+            if (closestEnemy == null)
+                return false;
+
+            CombatantData closestEnemyCombatant = combat.combatants.FirstOrDefault(c => c.character == closestEnemy);
+
+            // Determine if we should move based on abilities
+            bool hasRangedAbilities = character.knownAbilities.Any(a => a.range > 3f);
+            bool hasMeleeAbilities = character.knownAbilities.Any(a => a.range <= 1.5f);
+
+            // Melee characters: move closer if out of range
+            if (!hasRangedAbilities || hasMeleeAbilities)
+            {
+                if (closestDistance > 1) // Not in melee range
+                {
+                    targetPosition = FindMoveTowardTarget(battlefield, self.position,
+                                                         closestEnemyCombatant.position,
+                                                         character.speed);
+                    bool shouldMove = targetPosition != HexCoordinate.Invalid;
+                    if (shouldMove)
+                    {
+                        Debug.Log($"{character.characterName} wants to move toward {closestEnemy.characterName} " +
+                                 $"(distance: {closestDistance}) from {self.position} to {targetPosition}");
+                    }
+                    return shouldMove;
+                }
+            }
+            // Ranged characters: maintain distance
+            else if (hasRangedAbilities)
+            {
+                if (closestDistance <= 2) // Too close for comfort
+                {
+                    targetPosition = FindMoveAwayFromTarget(battlefield, self.position,
+                                                           closestEnemyCombatant.position,
+                                                           character.speed);
+                    bool shouldMove = targetPosition != HexCoordinate.Invalid;
+                    if (shouldMove)
+                    {
+                        Debug.Log($"{character.characterName} wants to move away from {closestEnemy.characterName} " +
+                                 $"(distance: {closestDistance}) from {self.position} to {targetPosition}");
+                    }
+                    return shouldMove;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Find best move toward target
+        /// </summary>
+        HexCoordinate FindMoveTowardTarget(HexBattlefield battlefield, HexCoordinate start,
+                                           HexCoordinate target, int maxDistance)
+        {
+            // Search up to battlefield size to ensure we find a path
+            int searchDistance = Mathf.Max(battlefield.width, battlefield.height);
+            List<HexCoordinate> path = HexPathfinder.FindPath(battlefield, start, target, searchDistance, false);
+
+            // Move as far along path as possible (up to our movement range)
+            if (path != null && path.Count > 1)
+            {
+                // Move up to maxDistance steps along the path, but don't land on target
+                int moveIndex = Mathf.Min(maxDistance, path.Count - 2);
+                if (moveIndex < 1) moveIndex = 1; // At minimum, move 1 step
+                return path[moveIndex];
+            }
+
+            return HexCoordinate.Invalid;
+        }
+
+        /// <summary>
+        /// Find best move away from target
+        /// </summary>
+        HexCoordinate FindMoveAwayFromTarget(HexBattlefield battlefield, HexCoordinate start,
+                                             HexCoordinate threat, int maxDistance)
+        {
+            List<HexCoordinate> reachable = HexPathfinder.GetReachableCells(battlefield, start, maxDistance);
+
+            HexCoordinate bestPosition = start;
+            int bestDistance = battlefield.GetDistance(start, threat);
+
+            foreach (var pos in reachable)
+            {
+                int dist = battlefield.GetDistance(pos, threat);
+                if (dist > bestDistance)
+                {
+                    bestDistance = dist;
+                    bestPosition = pos;
+                }
+            }
+
+            return bestPosition.Equals(start) ? HexCoordinate.Invalid : bestPosition;
+        }
+
+        /// <summary>
+        /// Get enemies within ability range
+        /// </summary>
+        List<CharacterData> GetEnemiesInRange(CharacterData character, List<CharacterData> enemies,
+                                              CombatManager combat)
+        {
+            List<CharacterData> inRange = new List<CharacterData>();
+            HexBattlefield battlefield = combat.battlefield;
+            CombatantData self = combat.combatants.FirstOrDefault(c => c.character == character);
+
+            if (self == null)
+                return enemies; // Fallback
+
+            // Find max range of known abilities
+            float maxRange = character.knownAbilities.Any() ? character.knownAbilities.Max(a => a.range) : 1.5f;
+            int maxRangeHexes = Mathf.CeilToInt(maxRange / combat.metersPerHex);
+
+            foreach (var enemy in enemies.Where(e => e.IsAlive()))
+            {
+                CombatantData enemyCombatant = combat.combatants.FirstOrDefault(c => c.character == enemy);
+                if (enemyCombatant != null)
+                {
+                    int distance = battlefield.GetDistance(self.position, enemyCombatant.position);
+                    if (distance <= maxRangeHexes)
+                    {
+                        inRange.Add(enemy);
+                    }
+                }
+            }
+
+            return inRange;
+        }
+
+        /// <summary>
+        /// Get enemies in melee range (1 hex)
+        /// </summary>
+        List<CharacterData> GetEnemiesInMeleeRange(CharacterData character, List<CharacterData> enemies,
+                                                   CombatManager combat)
+        {
+            List<CharacterData> inRange = new List<CharacterData>();
+            HexBattlefield battlefield = combat.battlefield;
+            CombatantData self = combat.combatants.FirstOrDefault(c => c.character == character);
+
+            if (self == null)
+                return enemies;
+
+            foreach (var enemy in enemies.Where(e => e.IsAlive()))
+            {
+                CombatantData enemyCombatant = combat.combatants.FirstOrDefault(c => c.character == enemy);
+                if (enemyCombatant != null)
+                {
+                    int distance = battlefield.GetDistance(self.position, enemyCombatant.position);
+                    if (distance <= 1) // Melee range
+                    {
+                        inRange.Add(enemy);
+                    }
+                }
+            }
+
+            return inRange;
+        }
+
         #endregion
     }
 

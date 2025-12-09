@@ -335,6 +335,9 @@ namespace MythRealFFSV2.Systems
             playoffsInProgress = true;
 
             Debug.Log($"\nPlayoff bracket generated: {currentPlayoffBracket.GetTotalRounds()} rounds");
+
+            // Trigger a match complete event to refresh UI
+            onMatchComplete?.Invoke(null);
         }
 
         /// <summary>
@@ -469,6 +472,9 @@ namespace MythRealFFSV2.Systems
 
             Debug.Log($"FINAL: {match.team1.teamName} {team1Score} - {team2Score} {match.team2.teamName}");
             Debug.Log($"🏆 {match.winner.teamName} advances! {match.loser.teamName} eliminated.");
+
+            // Fire match complete event to update UI
+            onMatchComplete?.Invoke(null);
         }
 
         /// <summary>

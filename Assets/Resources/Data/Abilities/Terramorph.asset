@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac3f948f4cd0a4573b2ec89427c48f53, type: 3}
+  m_Name: Terramorph
+  m_EditorClassIdentifier: Assembly-CSharp::MythRealFFSV2.Data.AbilityData
+  abilityName: Terramorph
+  abilityLevel: 4
+  description: Change the terrain in a 3x3 square
+  actionPointCost: 3
+  memoryCost: 4
+  components: []
+  actionType: 0
+  duration: 
+  range: 18
+  areaOfEffect: 3x3 square
+  requiresSave: 1
+  saveType: 0
+  damageRoll:
+    numberOfDice: 0
+    diceSize: 0
+    modifier: 0
+  damageType: 14
+  addAttributeModifier: 1
+  damageAttributeType: 0
+  inflictsStatus: []
+  requiredTechTree: 12
+  requiredTechTreeLevel: 4
+  otherRequirements: []
+  cooldownTurns: 0
+  specialProperties: []

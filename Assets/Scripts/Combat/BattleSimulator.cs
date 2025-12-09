@@ -22,7 +22,7 @@ namespace MythRealFFSV2.Combat
     {
         [Header("Simulation Settings")]
         [Tooltip("Maximum number of turns before declaring a draw")]
-        public int maxTurns = 50;
+        public int maxTurns = 150; // Increased for positioning-based combat
 
         [Tooltip("Delay between AI actions (for visualization)")]
         public float actionDelay = 0.5f;

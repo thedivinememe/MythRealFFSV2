@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using MythRealFFSV2.Systems;
 using MythRealFFSV2.Data;
+using MythRealFFSV2.Character;
 using System.Collections.Generic;
 
 namespace MythRealFFSV2.UI
@@ -29,18 +30,23 @@ namespace MythRealFFSV2.UI
         public List<BackgroundData> backgrounds;
         public List<AbilityData> abilities;
 
-        private TeamManager teamManager;
-        private DraftManager draftManager;
-        private LeagueManager leagueManager;
-        private SaveLoadManager saveLoadManager;
+        [Header("Managers")]
+        public TeamManager teamManager;
+        public DraftManager draftManager;
+        public LeagueManager leagueManager;
+        public SaveLoadManager saveLoadManager;
 
         void Start()
         {
-            // Get managers
-            teamManager = FindObjectOfType<TeamManager>();
-            draftManager = FindObjectOfType<DraftManager>();
-            leagueManager = FindObjectOfType<LeagueManager>();
-            saveLoadManager = FindObjectOfType<SaveLoadManager>();
+            // Get managers if not assigned
+            if (teamManager == null)
+                teamManager = FindFirstObjectByType<TeamManager>();
+            if (draftManager == null)
+                draftManager = FindFirstObjectByType<DraftManager>();
+            if (leagueManager == null)
+                leagueManager = FindFirstObjectByType<LeagueManager>();
+            if (saveLoadManager == null)
+                saveLoadManager = FindFirstObjectByType<SaveLoadManager>();
 
             // Setup buttons
             if (newGameButton != null)
@@ -87,7 +93,7 @@ namespace MythRealFFSV2.UI
 
             Debug.Log($"Created {defaultNumberOfTeams} teams");
 
-            // Start draft
+            // Start draft or create placeholder characters
             if (draftManager != null && ancestries.Count > 0 && backgrounds.Count > 0)
             {
                 draftManager.StartDraft(
@@ -106,11 +112,45 @@ namespace MythRealFFSV2.UI
 
                 Debug.Log("Draft complete!");
             }
+            else
+            {
+                // No data assets - create placeholder characters for testing
+                Debug.LogWarning("No ancestry/background data - creating placeholder characters");
+                CreatePlaceholderRosters();
+            }
 
             // Show league dashboard
             if (UIManager.Instance != null)
             {
                 UIManager.Instance.ShowLeagueDashboard();
+            }
+        }
+
+        void CreatePlaceholderRosters()
+        {
+            // Create simple placeholder characters for each team
+            string[] names = { "Warrior", "Mage", "Rogue", "Cleric", "Ranger" };
+
+            foreach (var team in teamManager.teams)
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    var character = new CharacterData
+                    {
+                        characterName = $"{team.teamName} {names[i]}",
+                        level = 1,
+                        maxHP = Random.Range(20, 40),
+                        defense = Random.Range(12, 18),
+                        attributes = new CharacterAttributes()
+                    };
+
+                    // Set current HP to max
+                    character.currentHP = character.maxHP;
+
+                    team.AddCharacter(character);
+                }
+
+                Debug.Log($"{team.teamName} roster created with {team.roster.Count} placeholder characters");
             }
         }
 

@@ -16,6 +16,12 @@ namespace MythRealFFSV2.Combat
         public int maxAPPerTurn = 5;
         public int maxBankedAP = 2;
 
+        [Header("Battlefield")]
+        public HexBattlefield battlefield;
+        public int battlefieldWidth = 15;
+        public int battlefieldHeight = 15;
+        public float metersPerHex = 1.5f;
+
         [Header("Current Combat")]
         public List<CombatantData> combatants = new List<CombatantData>();
         public int currentTurn = 0;
@@ -41,6 +47,9 @@ namespace MythRealFFSV2.Combat
             currentTurn = 0;
             currentCombatantIndex = 0;
 
+            // Initialize battlefield
+            battlefield = new HexBattlefield(battlefieldWidth, battlefieldHeight);
+
             // Create combatant data for each character
             foreach (var character in team1)
             {
@@ -57,6 +66,9 @@ namespace MythRealFFSV2.Combat
 
             // Sort by initiative (highest first)
             combatants = combatants.OrderByDescending(c => c.initiativeRoll).ToList();
+
+            // Place combatants on battlefield
+            PlaceCombatantsInitial(team1.Count, team2.Count);
 
             combatActive = true;
 
@@ -82,6 +94,128 @@ namespace MythRealFFSV2.Combat
                 int roll = Random.Range(1, 21); // 1d20
                 combatant.initiativeRoll = roll + combatant.character.initiative;
             }
+        }
+
+        /// <summary>
+        /// Place combatants on battlefield in starting formations
+        /// Team 0 on left side, Team 1 on right side
+        /// </summary>
+        private void PlaceCombatantsInitial(int team0Count, int team1Count)
+        {
+            // Team 0 placement - left side (column 1)
+            int team0Index = 0;
+            int startRow = (battlefieldHeight - team0Count) / 2; // Center vertically
+
+            foreach (var combatant in combatants.Where(c => c.teamId == 0))
+            {
+                HexCoordinate position = new HexCoordinate(
+                    q: 1,  // Column 1 (left side)
+                    r: startRow + team0Index
+                );
+
+                combatant.position = position;
+                battlefield.PlaceCombatant(combatant, position);
+                team0Index++;
+
+                Debug.Log($"{combatant.character.characterName} (Team {combatant.teamId}) placed at {position}");
+            }
+
+            // Team 1 placement - right side (column width-2)
+            int team1Index = 0;
+            startRow = (battlefieldHeight - team1Count) / 2;
+
+            foreach (var combatant in combatants.Where(c => c.teamId == 1))
+            {
+                HexCoordinate position = new HexCoordinate(
+                    q: battlefieldWidth - 2,  // Column 13 for 15x15 grid (right side)
+                    r: startRow + team1Index
+                );
+
+                combatant.position = position;
+                battlefield.PlaceCombatant(combatant, position);
+                team1Index++;
+
+                Debug.Log($"{combatant.character.characterName} (Team {combatant.teamId}) placed at {position}");
+            }
+        }
+
+        /// <summary>
+        /// Move a character on the battlefield
+        /// Costs 1 AP and moves up to 'speed' hexes
+        /// </summary>
+        public bool MoveCharacter(CharacterData character, HexCoordinate targetPosition)
+        {
+            // Find combatant
+            CombatantData combatant = combatants.FirstOrDefault(c => c.character == character);
+            if (combatant == null)
+            {
+                Debug.LogWarning($"Combatant not found: {character.characterName}");
+                return false;
+            }
+
+            // Check AP cost
+            int movementAPCost = 1;
+            if (!character.SpendAP(movementAPCost))
+            {
+                Debug.LogWarning($"Not enough AP to move");
+                return false;
+            }
+
+            // Check if position is valid
+            if (!battlefield.IsValidPosition(targetPosition))
+            {
+                Debug.LogWarning($"Invalid position: {targetPosition}");
+                character.currentAP += movementAPCost; // Refund AP
+                return false;
+            }
+
+            // Check if position is occupied
+            if (battlefield.IsOccupied(targetPosition))
+            {
+                Debug.LogWarning($"Position occupied: {targetPosition}");
+                character.currentAP += movementAPCost; // Refund AP
+                return false;
+            }
+
+            // Calculate distance
+            int distance = battlefield.GetDistance(combatant.position, targetPosition);
+            int maxMovement = character.speed; // speed stat = hexes per movement action
+
+            if (distance > maxMovement)
+            {
+                Debug.LogWarning($"Target too far: {distance} hexes (max: {maxMovement})");
+                character.currentAP += movementAPCost; // Refund AP
+                return false;
+            }
+
+            // Perform movement
+            HexCoordinate oldPosition = combatant.position;
+            battlefield.MoveCombatant(combatant, oldPosition, targetPosition);
+            combatant.position = targetPosition;
+
+            Debug.Log($"{character.characterName} moved from {oldPosition} to {targetPosition} - {distance} hexes");
+
+            return true;
+        }
+
+        /// <summary>
+        /// Check if target is within range of user for an ability
+        /// </summary>
+        private bool IsInRange(CharacterData user, CharacterData target, float rangeInMeters)
+        {
+            if (battlefield == null)
+                return true; // No battlefield = always in range (backward compatibility)
+
+            CombatantData userCombatant = combatants.FirstOrDefault(c => c.character == user);
+            CombatantData targetCombatant = combatants.FirstOrDefault(c => c.character == target);
+
+            if (userCombatant == null || targetCombatant == null)
+                return false;
+
+            int distanceInHexes = battlefield.GetDistance(userCombatant.position, targetCombatant.position);
+            int rangeInHexes = Mathf.CeilToInt(rangeInMeters / metersPerHex);
+
+            return distanceInHexes <= rangeInHexes;
         }
 
         /// <summary>
@@ -143,6 +277,13 @@ namespace MythRealFFSV2.Combat
             if (!ability.CanUse(user, user.currentAP))
             {
                 Debug.LogWarning($"{user.characterName} cannot use {ability.abilityName}");
+                return false;
+            }
+
+            // Check range if battlefield exists
+            if (battlefield != null && !IsInRange(user, target, ability.range))
+            {
+                Debug.LogWarning($"{target.characterName} is out of range for {ability.abilityName}");
                 return false;
             }
 
@@ -227,6 +368,14 @@ namespace MythRealFFSV2.Combat
             if (!attacker.SpendAP(apCost))
             {
                 Debug.LogWarning("Not enough AP for basic attack");
+                return false;
+            }
+
+            // Check melee range (1 hex) if battlefield exists
+            if (battlefield != null && !IsInRange(attacker, target, metersPerHex)) // 1 hex = melee range
+            {
+                Debug.LogWarning($"{target.characterName} is not in melee range");
+                attacker.currentAP += apCost; // Refund AP
                 return false;
             }
 
@@ -367,11 +516,13 @@ namespace MythRealFFSV2.Combat
         public CharacterData character;
         public int teamId;
         public int initiativeRoll;
+        public HexCoordinate position;
 
         public CombatantData(CharacterData character, int teamId)
         {
             this.character = character;
             this.teamId = teamId;
+            this.position = HexCoordinate.Invalid;
         }
     }
 }

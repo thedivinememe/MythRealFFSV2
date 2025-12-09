@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac3f948f4cd0a4573b2ec89427c48f53, type: 3}
+  m_Name: Warrior Rage
+  m_EditorClassIdentifier: Assembly-CSharp::MythRealFFSV2.Data.AbilityData
+  abilityName: Warrior Rage
+  abilityLevel: 2
+  description: Gives rage status for 5 turns
+  actionPointCost: 2
+  memoryCost: 1
+  components: []
+  actionType: 2
+  duration: 
+  range: 0
+  areaOfEffect: Self
+  requiresSave: 0
+  saveType: 5
+  damageRoll:
+    numberOfDice: 0
+    diceSize: 0
+    modifier: 0
+  damageType: 0
+  addAttributeModifier: 1
+  damageAttributeType: 5
+  inflictsStatus: []
+  requiredTechTree: 1
+  requiredTechTreeLevel: 2
+  otherRequirements: []
+  cooldownTurns: 0
+  specialProperties: []

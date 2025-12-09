@@ -37,7 +37,7 @@ namespace MythRealFFSV2.UI
         void Start()
         {
             // Get managers
-            teamManager = FindObjectOfType<TeamManager>();
+            teamManager = FindFirstObjectByType<TeamManager>();
 
             // Setup buttons
             if (backButton != null)
@@ -234,13 +234,10 @@ namespace MythRealFFSV2.UI
                 stats += "Attributes:\n";
                 if (character.attributes != null)
                 {
-                    stats += $"  COR: {character.attributes.COR.score} ({character.attributes.COR.GetModifierString()})\n";
-                    stats += $"  FAI: {character.attributes.FAI.score} ({character.attributes.FAI.GetModifierString()})\n";
-                    stats += $"  FRT: {character.attributes.FRT.score} ({character.attributes.FRT.GetModifierString()})\n";
-                    stats += $"  INT: {character.attributes.INT.score} ({character.attributes.INT.GetModifierString()})\n";
-                    stats += $"  SOC: {character.attributes.SOC.score} ({character.attributes.SOC.GetModifierString()})\n";
-                    stats += $"  STR: {character.attributes.STR.score} ({character.attributes.STR.GetModifierString()})\n";
-                    stats += $"  WIT: {character.attributes.WIT.score} ({character.attributes.WIT.GetModifierString()})\n";
+                    foreach (var attr in character.attributes.GetAllAttributes())
+                    {
+                        stats += $"  {attr.Value}\n";
+                    }
                 }
 
                 stats += $"\nHP: {character.currentHP}/{character.maxHP}\n";
@@ -255,13 +252,13 @@ namespace MythRealFFSV2.UI
             {
                 string abilities = "Abilities:\n\n";
 
-                if (character.learnedAbilities.Count > 0)
+                if (character.knownAbilities.Count > 0)
                 {
-                    foreach (var ability in character.learnedAbilities)
+                    foreach (var ability in character.knownAbilities)
                     {
                         abilities += $"• {ability.abilityName}\n";
                         abilities += $"  {ability.description}\n";
-                        abilities += $"  Cost: {ability.apCost} AP\n\n";
+                        abilities += $"  Cost: {ability.actionPointCost} AP\n\n";
                     }
                 }
                 else

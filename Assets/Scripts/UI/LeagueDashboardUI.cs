@@ -16,6 +16,11 @@ namespace MythRealFFSV2.UI
         public TextMeshProUGUI seasonInfoText;
         public TextMeshProUGUI scheduleInfoText;
 
+        [Header("Playoff Info")]
+        public GameObject playoffPanel;
+        public TextMeshProUGUI playoffStatusText;
+        public TextMeshProUGUI playoffMatchupsText;
+
         [Header("Standings Display")]
         public Transform standingsContainer;
         public GameObject standingsRowPrefab;
@@ -32,16 +37,20 @@ namespace MythRealFFSV2.UI
         public Button saveGameButton;
         public Button mainMenuButton;
 
-        private LeagueManager leagueManager;
-        private TeamManager teamManager;
-        private SaveLoadManager saveLoadManager;
+        [Header("Managers")]
+        public LeagueManager leagueManager;
+        public TeamManager teamManager;
+        public SaveLoadManager saveLoadManager;
 
         void Start()
         {
-            // Get managers
-            leagueManager = FindObjectOfType<LeagueManager>();
-            teamManager = FindObjectOfType<TeamManager>();
-            saveLoadManager = FindObjectOfType<SaveLoadManager>();
+            // Get managers if not assigned
+            if (leagueManager == null)
+                leagueManager = FindFirstObjectByType<LeagueManager>();
+            if (teamManager == null)
+                teamManager = FindFirstObjectByType<TeamManager>();
+            if (saveLoadManager == null)
+                saveLoadManager = FindFirstObjectByType<SaveLoadManager>();
 
             // Setup control buttons
             if (playNextWeekButton != null)
@@ -94,6 +103,7 @@ namespace MythRealFFSV2.UI
             UpdateSeasonInfo();
             UpdateStandings();
             UpdateButtons();
+            UpdatePlayoffDisplay();
         }
 
         /// <summary>
@@ -156,6 +166,9 @@ namespace MythRealFFSV2.UI
 
             GameObject row = Instantiate(standingsRowPrefab, standingsContainer);
 
+            // Get the Image component for background color
+            UnityEngine.UI.Image rowBackground = row.GetComponent<UnityEngine.UI.Image>();
+
             // Find text elements in the row (assumes specific naming convention)
             // You'll need to adjust these based on your actual prefab structure
             TextMeshProUGUI rankText = row.transform.Find("RankText")?.GetComponent<TextMeshProUGUI>();
@@ -169,7 +182,11 @@ namespace MythRealFFSV2.UI
                 rankText.text = rank.ToString();
 
             if (teamNameText != null)
+            {
                 teamNameText.text = team.teamName;
+                // Use team color for team name
+                teamNameText.color = team.teamColor;
+            }
 
             if (recordText != null)
                 recordText.text = $"{team.wins}-{team.losses}-{team.draws}";
@@ -181,6 +198,26 @@ namespace MythRealFFSV2.UI
             {
                 int diff = team.PointDifferential;
                 diffText.text = diff >= 0 ? $"+{diff}" : diff.ToString();
+                // Color code the differential
+                diffText.color = diff > 0 ? Color.green : (diff < 0 ? Color.red : Color.gray);
+            }
+
+            // Style the row background
+            if (rowBackground != null)
+            {
+                // Playoff teams get highlighted (top 4)
+                if (rank <= leagueManager.playoffTeamCount && leagueManager.enablePlayoffs)
+                {
+                    // Gold tint for playoff teams
+                    rowBackground.color = new Color(1f, 0.9f, 0.6f, 0.3f);
+                }
+                else
+                {
+                    // Alternating row colors for readability
+                    rowBackground.color = (rank % 2 == 0) ?
+                        new Color(0.9f, 0.9f, 0.9f, 0.5f) :
+                        new Color(1f, 1f, 1f, 0.3f);
+                }
             }
 
             // Optional: Add click handler to view team roster
@@ -211,6 +248,73 @@ namespace MythRealFFSV2.UI
 
             if (playPlayoffsButton != null)
                 playPlayoffsButton.interactable = playoffsActive;
+        }
+
+        /// <summary>
+        /// Update playoff display panel
+        /// </summary>
+        void UpdatePlayoffDisplay()
+        {
+            bool showPlayoffs = leagueManager.playoffsInProgress;
+
+            // Show/hide playoff panel
+            if (playoffPanel != null)
+                playoffPanel.SetActive(showPlayoffs);
+
+            if (!showPlayoffs || leagueManager.currentPlayoffBracket == null)
+                return;
+
+            var bracket = leagueManager.currentPlayoffBracket;
+
+            // Update playoff status
+            if (playoffStatusText != null)
+            {
+                string roundName = "Playoffs";
+                var currentRoundMatches = bracket.GetMatchesForRound(bracket.currentRound);
+                if (currentRoundMatches.Count > 0)
+                {
+                    roundName = currentRoundMatches[0].roundName;
+                }
+
+                playoffStatusText.text = $"{roundName} - {leagueManager.currentSeasonYear}";
+
+                if (bracket.champion != null)
+                {
+                    playoffStatusText.text += $"\n🏆 CHAMPION: {bracket.champion.teamName}! 🏆";
+                }
+            }
+
+            // Update playoff matchups
+            if (playoffMatchupsText != null)
+            {
+                var currentRoundMatches = bracket.GetMatchesForRound(bracket.currentRound);
+                string matchups = "Current Matchups:\n\n";
+
+                if (currentRoundMatches.Count == 0)
+                {
+                    matchups = "Playoffs Complete!";
+                }
+                else
+                {
+                    foreach (var match in currentRoundMatches)
+                    {
+                        if (match.team1 != null && match.team2 != null)
+                        {
+                            if (match.winner != null)
+                            {
+                                matchups += $"#{match.seed1} {match.team1.teamName} vs #{match.seed2} {match.team2.teamName}\n";
+                                matchups += $"   ✓ Winner: {match.winner.teamName}\n\n";
+                            }
+                            else
+                            {
+                                matchups += $"#{match.seed1} {match.team1.teamName} vs #{match.seed2} {match.team2.teamName}\n\n";
+                            }
+                        }
+                    }
+                }
+
+                playoffMatchupsText.text = matchups;
+            }
         }
 
         #region Button Handlers
@@ -309,9 +413,8 @@ namespace MythRealFFSV2.UI
 
         void OnMatchComplete(Match match)
         {
-            // Update standings after each match
-            UpdateStandings();
-            UpdateSeasonInfo();
+            // Refresh entire display after each match
+            RefreshDisplay();
         }
 
         void OnSeasonComplete(Schedule schedule, List<TeamData> finalStandings)
